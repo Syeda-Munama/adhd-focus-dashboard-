@@ -1,97 +1,25 @@
-"use client";
+import { Suspense } from "react";
+import { SignInForm } from "@/components/shared/SignInForm";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-
-type State = "idle" | "sending" | "sent" | "error";
-
+// SignInForm reads useSearchParams() (for ?next= and ?error=), which
+// requires a Suspense boundary -- otherwise Next.js bails out of
+// static rendering for this page entirely and fails the build. The
+// fallback below is what renders for the brief instant before the
+// client component mounts.
 export default function SignInPage() {
-  const searchParams = useSearchParams();
-  const nextPath = searchParams.get("next") ?? "/dump";
-  const initialError = searchParams.get("error");
-
-  const [email, setEmail] = useState("");
-  const [state, setState] = useState<State>("idle");
-  const [message, setMessage] = useState(initialError ?? "");
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email.trim() || state === "sending") return;
-
-    setState("sending");
-    setMessage("");
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        // Where Supabase redirects after the user clicks the email
-        // link. Our callback route exchanges the code and forwards
-        // them on to wherever they were trying to go.
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-          nextPath
-        )}`,
-      },
-    });
-
-    if (error) {
-      setMessage(error.message);
-      setState("error");
-      return;
-    }
-
-    setState("sent");
-  }
-
   return (
-    <div className="flex flex-col items-center gap-6">
-      <Link
-        href="/"
-        className="font-mono text-xs uppercase tracking-[0.2em] text-ink-text-muted hover:text-ink-text"
-      >
-        ← back
-      </Link>
+    <Suspense fallback={<SignInFormSkeleton />}>
+      <SignInForm />
+    </Suspense>
+  );
+}
 
-      <Card className="w-full max-w-sm">
-        <CardContent className="flex flex-col gap-4">
-          <div className="text-center">
-            <h1 className="text-xl font-medium text-ink-text">Tab Zero</h1>
-            <p className="mt-1 text-sm text-ink-text-muted">
-              One task at a time. Sign in to get started.
-            </p>
-          </div>
-
-          {state === "sent" ? (
-            <p className="text-center text-sm text-ink-text">
-              Check <span className="font-medium">{email}</span> for a
-              sign-in link. You can close this tab.
-            </p>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full rounded-[16px] border border-paper-border px-4 py-3 text-sm text-ink-text focus:outline-none focus:ring-2 focus:ring-clarity"
-                disabled={state === "sending"}
-              />
-              <Button type="submit" disabled={state === "sending"}>
-                {state === "sending" ? "Sending link..." : "Send magic link"}
-              </Button>
-            </form>
-          )}
-
-          {message && (
-            <p className="text-center text-sm text-alert">{message}</p>
-          )}
-        </CardContent>
-      </Card>
+function SignInFormSkeleton() {
+  return (
+    <div className="w-full max-w-sm animate-pulse rounded-[28px] border border-paper-border bg-paper-card p-6">
+      <div className="mx-auto mb-6 h-5 w-20 rounded bg-paper-border" />
+      <div className="h-12 rounded-[16px] bg-paper-border" />
+      <div className="mt-3 h-11 rounded-full bg-paper-border" />
     </div>
   );
 }
