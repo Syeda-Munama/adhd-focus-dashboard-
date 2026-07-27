@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Used at runtime by Prisma Client. Point this at Supabase's
+  // connection pooler (Supavisor, port 6543) in production -- serverless
+  // functions open many concurrent connections, and only the pooler
+  // handles that fan-out gracefully.
+  url       = env("DATABASE_URL")
+  // Used only by the Prisma CLI (generate/db push/migrate). Point this
+  // at the direct connection (port 5432) -- the pooler's transaction
+  // mode doesn't support the multi-statement transactions migrations need.
+  directUrl = env("DIRECT_URL")
+}
+
+// NOTE: id is NOT auto-generated anymore. It must equal the Supabase
+// auth user's id (a UUID), so this table acts as a "profile" row
+// mirroring the real auth.users record that Supabase manages for you.
+// See lib/db/prisma.ts -> getCurrentUserId(), which creates this row
+// on first login.
+model User {
+  id          String   @id
+  email       String?  @unique
+  preferences Json?    @default("{}")
+  createdAt   DateTime @default(now())
+
+  dumps         Dump[]
+  tasks         Task[]
+  focusSessions FocusSession[]
+}
+
+model Dump {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rawText   String
+  processed Boolean  @default(false)
+  error     String?
+  createdAt DateTime @default(now())
+
+  tasks Task[]
+
+  @@index([userId, createdAt])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  PENDING
+  ACTIVE
+  DONE
+  SKIPPED
+  SNOOZED
+}
+
+model Task {
+  id        String @id @default(cuid())
+  dumpId    String?
+  dump      Dump?  @relation(fields: [dumpId], references: [id], onDelete: SetNull)
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title            String
+  description      String?
+  category         String?
+  priority         Priority    @default(MEDIUM)
+  estimatedMinutes Int?
+  energyLevel      EnergyLevel @default(MEDIUM)
+  status           TaskStatus  @default(PENDING)
+  orderIndex       Int         @default(0)
+
+  snoozedUntil DateTime?
+  createdAt    DateTime  @default(now())
+  completedAt  DateTime?
+
+  focusSessions FocusSession[]
+
+  @@index([userId, status, orderIndex])
+}
+
+model FocusSession {
+  id          String    @id @default(cuid())
+  taskId      String
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime?
+  wasCompleted Boolean  @default(false)
+
+  @@index([userId, startedAt])
+}

@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/* Self-hosted variable fonts (Fontsource) -- no network fetch at build
+   or runtime, unlike next/font/google. Three roles, on purpose:
+   - Caveat: handwritten "chaos" voice, used ONLY for scattered thought
+     fragments in the landing hero -- never in real UI.
+   - Lexend: the app's actual display + body face. It was designed
+     specifically to reduce reading friction, which is exactly this
+     product's brief -- not a neutral choice.
+   - JetBrains Mono: utility face for the timer digits and badge labels,
+     giving those small "data readout" moments a bit of precision. */
+@import "@fontsource-variable/lexend";
+@import "@fontsource/caveat/400.css";
+@import "@fontsource/caveat/600.css";
+@import "@fontsource-variable/jetbrains-mono";
+
+:root {
+  /* Ink: near-black plum-navy, the "chaos" surface (landing hero). */
+  --ink: #16141f;
+  --ink-soft: #201d2c;
+  --ink-border: #2f2c3d;
+
+  /* Paper: cool off-white, the "clarity" surface (the working app).
+     Deliberately not cream -- this isn't that palette. */
+  --paper: #f6f5fb;
+  --paper-card: #ffffff;
+  --paper-border: #e4e2ef;
+
+  /* Ink-text: body copy on paper. */
+  --ink-text: #1d1b2e;
+  --ink-text-muted: #6b6880;
+
+  /* Scatter: the racing-thoughts color -- muted periwinkle. */
+  --scatter: #9c9fe8;
+  --scatter-soft: #cfd0f2;
+
+  /* Clarity: the one-lit-task color -- warm gold, not terracotta. */
+  --clarity: #f2b441;
+  --clarity-soft: #fce9c4;
+  --clarity-ink: #5c3d0a;
+
+  /* Calm: completion / success -- soft sage, never neon. */
+  --calm: #6fbf8b;
+  --calm-soft: #dcf1e4;
+
+  /* Alert: high priority -- warm coral, same family as clarity/scatter. */
+  --alert: #e4614a;
+  --alert-soft: #fbdcd6;
+
+  --background: var(--paper);
+  --foreground: var(--ink-text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-border: var(--ink-border);
+  --color-paper: var(--paper);
+  --color-paper-card: var(--paper-card);
+  --color-paper-border: var(--paper-border);
+  --color-ink-text: var(--ink-text);
+  --color-ink-text-muted: var(--ink-text-muted);
+  --color-scatter: var(--scatter);
+  --color-scatter-soft: var(--scatter-soft);
+  --color-clarity: var(--clarity);
+  --color-clarity-soft: var(--clarity-soft);
+  --color-clarity-ink: var(--clarity-ink);
+  --color-calm: var(--calm);
+  --color-calm-soft: var(--calm-soft);
+  --color-alert: var(--alert);
+  --color-alert-soft: var(--alert-soft);
+
+  --font-sans: "Lexend Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-hand: "Caveat", cursive;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Respect reduced-motion system preference across every animation in
+   the app, not just the ones we remember to guard individually. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Very slow ambient drift for the two background blobs on dashboard
+   pages -- deliberately subtle. This app is where people are trying to
+   focus, not be entertained, so the motion stays barely perceptible
+   and glacially slow (40s+ per loop) rather than decorative. */
+@keyframes drift-a {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(4%, 6%); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5%, -4%); }
+}
+.animate-drift-a {
+  animation: drift-a 46s ease-in-out infinite;
+}
+.animate-drift-b {
+  animation: drift-b 54s ease-in-out infinite;
+}
