@@ -46,6 +46,9 @@ export function SignUpForm() {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
+       options: {
+  emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/dump`,
+}
     });
 
     if (error) {
