@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // Routes that don't require a logged-in user. "/" is matched exactly
 // below (not via startsWith) -- as a prefix it would match every path
 // in the app, which would defeat the whole point of this list.
-const PUBLIC_PATHS = ["/", "/sign-in", "/auth/callback"];
+const PUBLIC_PATHS = ["/", "/sign-in", "/sign-up", "/auth/callback"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
