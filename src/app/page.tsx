@@ -135,7 +135,7 @@
 //       </main>
 
 //       <footer className="mx-auto max-w-5xl px-6 pb-10 text-center text-xs text-white/30">
-//         clarity — one task at a time
+//         Tab Zero — one task at a time
 //       </footer>
 //     </div>
 //   );
@@ -198,12 +198,20 @@ export default async function LandingPage({
         <span className="font-mono text-sm tracking-[0.2em] text-white/60">
           TAB ZERO
         </span>
-        <Link
+         <div className="flex items-center gap-3 ">
+         <Link
           href="/sign-in"
           className="rounded-full bg-clarity px-5 py-2 text-sm font-medium text-clarity-ink transition-transform hover:scale-105"
         >
           Sign in
         </Link>
+        <Link
+          href="/sign-up"
+          className="rounded-full bg-clarity px-5 py-2 text-sm font-medium text-clarity-ink transition-transform hover:scale-105"
+        >
+          Sign up
+        </Link>
+        </div>
       </header>
 
       <main>
